@@ -11,6 +11,9 @@ public class Player : MonoBehaviour
     public static int lives;
     private float velocity = 0.1F;
 
+    bool InFrontOfFence = false;
+    bool AtBackOfFence = false;
+
     private int direction;               // Direction selector  // 0 - none     1 - up      2 - down    3 - left    4 - right
     readonly Vector3[] move = { new Vector3(0, 0, 0),           // 0 - none
                                 new Vector3(0, 1, 0),           // 1 - up
@@ -34,14 +37,14 @@ public class Player : MonoBehaviour
     {           
         if (direction == 0)        // if player is not moving - read input keys for player
         {
-            if (Input.GetKeyDown(KeyCode.UpArrow))
+            if (Input.GetKeyDown(KeyCode.UpArrow) && !InFrontOfFence)       // ... && not in front of fence
             {
                 direction = 1;
                 Set_Move_To();
                 //Debug.Log("Player moving to : (" + move_to.x + "," + move_to.y + ")");
             }
 
-            if (Input.GetKeyDown(KeyCode.DownArrow) && player.transform.position.y > -4)
+            if (Input.GetKeyDown(KeyCode.DownArrow) && !AtBackOfFence && player.transform.position.y > -4 )  // ... && not at back of fence
             {
                 direction = 2;
                 Set_Move_To();
@@ -75,7 +78,7 @@ public class Player : MonoBehaviour
         player.transform.position += (move[direction] * velocity);                      // move player in selected direction
         if (player.transform.position == move_to)                                       // if player reached position to move to
         {
-            player.transform.position = move_to;    // !!! comparing two Vector3 does have some approximation / rounding and results in leftover values like 0,0001 etc. This line only sets position to whole value.
+            player.transform.position = move_to;        // !!! comparing two Vector3 does have some approximation / rounding and results in leftover values like 0,0001 etc. This line only sets position to whole value.
             direction = 0;
         }
     }
@@ -85,10 +88,43 @@ public class Player : MonoBehaviour
         move_to = player.transform.position + move[direction];        
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)     // function for handling trigger entering (getting hit goes here)
     {
-        Debug.Log("Hit");
-        Respawn();
+        if (collision.CompareTag("KillCollider"))           // check if player collided with object that has "KillCollider" tag
+        {
+            Debug.Log("Hit");
+            Respawn();            
+        }
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)      // function for handling trigger entering (staying on something goes here)
+    {
+        if (collision.CompareTag("FenceFront"))
+        {
+            InFrontOfFence = true;
+            Debug.Log("Player is in front of the fence");
+        }
+
+        if (collision.CompareTag("FenceBack"))
+        {
+            AtBackOfFence = true;
+            Debug.Log("Player is at back of the fence");
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)      // function for handling trigger exiting (extiting something goes here)
+    {
+        if (collision.CompareTag("FenceFront"))
+        {
+            InFrontOfFence = false;
+            Debug.Log("Player is not in front of the fence");
+        }
+
+        if (collision.CompareTag("FenceBack"))
+        {
+            AtBackOfFence = false;
+            Debug.Log("Player is not at back of the fence");
+        }
     }
 
     private void Respawn()
@@ -104,7 +140,7 @@ public class Player : MonoBehaviour
         {
             UI_Lives[lives].SetActive(false);              // uses int variable "lives" to disable life 1 (0 in array)
             player.SetActive(false);
-            Debug.Log("YOU DIED");
+            // Debug.Log("YOU DIED");
         }   
     }    
 }

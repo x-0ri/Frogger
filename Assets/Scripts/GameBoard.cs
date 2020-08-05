@@ -7,59 +7,52 @@ public class GameBoard : MonoBehaviour
 {
     public GameObject Car;
     public Slider UI_Time_Slider;
-    readonly float SpawnDistance = 15;
-
-    readonly Vector3[] AI_move_vector = { new Vector3(1, 0, 0), new Vector3(-1, 0, 0) };            // AI_Move[0] - to right        AI_Move[1] - to left
+    static readonly Vector3[] AI_move_vector = { new Vector3(1, 0, 0), new Vector3(-1, 0, 0) };            // AI_Move[0] - to right        AI_Move[1] - to left
 
     float GameTime;
-    
+    public static float RespawnPoint = 12;
+
     void Start()
     {
-        GameTime = 100;
+        GameTime = 10;
         UI_Time_Slider.maxValue = GameTime;
         UI_Time_Slider.value = UI_Time_Slider.maxValue;
-        StartCoroutine("Timer01s");
-        //Car = SpawnCar(1, 1);      // spawn Car at left side on lane 1        
+        StartCoroutine("Timer001s");
     }
 
     void Update()
     {
-        
+
     }
 
-    void AI_Move(GameObject arg_obj, float arg_v, int arg_dir)
+    public static void RespawnObject(GameObject arg_obj)
     {
-        if(arg_obj != null) arg_obj.transform.position += (AI_move_vector[arg_dir] * arg_v);       // attempt to move only when object is not empty
-    }
-
-    /*
-    public GameObject SpawnCar(int arg_side, int arg_lane)              // arg_side and arg_lane are passed to GetSpawnPosition func
-    {
-        GameObject funcCar = Instantiate(Car);                          // instantiate object to be returned
-        if (arg_side == 1)
-        {
-            funcCar.GetComponent<SpriteRenderer>().flipX = true;
-        }
-        funcCar.transform.position = GetSpawnPosition(arg_side, arg_lane);
-        return funcCar;
-    }
-    */
-
-    public void RespawnObject(GameObject arg_obj)
-    {
-        Vector3 respawn_pos = arg_obj.transform.position;      // cannot be done directly in transform.position.x
+        Vector3 respawn_pos = arg_obj.transform.position;      // cannot be done directly as transform.position.x *= -1;
         respawn_pos.x *= -1;
         arg_obj.transform.position = respawn_pos;
     }
 
-    IEnumerator Timer01s()
+    public static void AI_Move(GameObject TargetObject, float Velocity)         // This function is used to move objects
     {
-        for (;;) 
-        { 
-        yield return new WaitForSeconds(0.1F);
-        UI_Time_Slider.value--;
-        //Debug.Log("Time left : " + UI_Time_Slider.value);
+        int dir;                                                            //
+        if (TargetObject.GetComponent<SpriteRenderer>().flipX == true) dir = 1;        // to determine direction of movement 
+        else dir = 0;                                                       // int is passed to pick vector from array
+
+        TargetObject.transform.position += (GameBoard.AI_move_vector[dir] * Velocity);
+    }
+    IEnumerator Timer001s()
+    {
+        for (; ; )    // endless "for" loop
+        {
+            yield return new WaitForSeconds(0.01F);
+            UI_Time_Slider.value -= 0.01F;
+            // Debug.Log("Time left : " + UI_Time_Slider.value);
         }
     }
 
+    public static float RollDeviation()
+    {
+        float d = Random.Range(-1.5F, 1.5F);
+        return d;
+    }
 }
