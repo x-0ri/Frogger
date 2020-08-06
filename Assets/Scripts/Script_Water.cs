@@ -9,8 +9,8 @@ public class Script_Water : MonoBehaviour
     int LogAmountPerLane = 3;
     int LilyAmountPerLane = 2;
 
-    private float v_log = 0.01F;        // velocity of Log
-    private float v_lily = 0.01F;       // velocity of Lily
+    public static float v_log = 0.01F;        // velocity of Log
+    public static float v_lily = 0.01F;       // velocity of Lily
 
     public GameObject LineWaterPrefab;                                      // these prefabs 
     public GameObject LogPrefab;
@@ -61,6 +61,10 @@ public class Script_Water : MonoBehaviour
                 InstantiationLinePos.Set(x_coord, Script_Road.LinesRoad.Length + Script_MidGrass.LinesGrass.Length + i - 3, -1);
                 GameObject NewLog = Instantiate(LogPrefab);
                 NewLog.transform.position = InstantiationLinePos;
+                if (i % 2 == 0)                                     // at each second lane log will be facing the other direction
+                {
+                    NewLog.GetComponent<SpriteRenderer>().flipX = true;
+                }
                 Logs.Add(NewLog);
             }
         }

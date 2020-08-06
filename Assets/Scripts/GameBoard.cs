@@ -5,26 +5,21 @@ using UnityEngine.UI;
 
 public class GameBoard : MonoBehaviour
 {
+    Player PlayerScript;
+
     public GameObject Car;
     public Slider UI_Time_Slider;
     static readonly Vector3[] AI_move_vector = { new Vector3(1, 0, 0), new Vector3(-1, 0, 0) };            // AI_Move[0] - to right        AI_Move[1] - to left
 
+    
     float GameTime;
     public static float RespawnPoint = 12;
-
     void Start()
     {
-        GameTime = 10;
-        UI_Time_Slider.maxValue = GameTime;
-        UI_Time_Slider.value = UI_Time_Slider.maxValue;
-        StartCoroutine("Timer001s");
+        GameTime = 4;
+        ResetTimer();
+        StartCoroutine("Timer01s");
     }
-
-    void Update()
-    {
-
-    }
-
     public static void RespawnObject(GameObject arg_obj)
     {
         Vector3 respawn_pos = arg_obj.transform.position;      // cannot be done directly as transform.position.x *= -1;
@@ -32,17 +27,27 @@ public class GameBoard : MonoBehaviour
         arg_obj.transform.position = respawn_pos;
     }
 
-    public static void AI_Move(GameObject TargetObject, float Velocity)         // This function is used to move objects
+    public static void AI_Move(GameObject TargetObject, float Velocity)                // This function is used to move objects
     {
-        int dir;                                                            //
+        int dir;                                                                       //
         if (TargetObject.GetComponent<SpriteRenderer>().flipX == true) dir = 1;        // to determine direction of movement 
-        else dir = 0;                                                       // int is passed to pick vector from array
+        else dir = 0;                                                                  // int is passed to pick vector from array
 
         TargetObject.transform.position += (GameBoard.AI_move_vector[dir] * Velocity);
     }
-    IEnumerator Timer001s()
+
+    public static void Carry_Player_On_Water(GameObject arg_Player, float Velocity)         // should be called only for player
     {
-        for (; ; )    // endless "for" loop
+        int dir;                                                                        //
+        if (arg_Player.transform.position.y%2 == 0) dir = 1;                                // to determine direction of movement 
+        else dir = 0;                                                                   // int is passed to pick vector from array
+
+        arg_Player.transform.position += (GameBoard.AI_move_vector[dir] * Velocity);
+        Player.move_to += (GameBoard.AI_move_vector[dir] * Velocity);                   // !!! Player's target position also needs to be modified in same way as current position !!!
+    }
+    IEnumerator Timer01s()
+    {
+        while (true) 
         {
             yield return new WaitForSeconds(0.01F);
             UI_Time_Slider.value -= 0.01F;
@@ -54,5 +59,12 @@ public class GameBoard : MonoBehaviour
     {
         float d = Random.Range(-1.5F, 1.5F);
         return d;
+    }
+
+    public void ResetTimer()
+    {
+        Debug.Log("Restarting Timer");
+        UI_Time_Slider.maxValue = GameTime;
+        UI_Time_Slider.value = UI_Time_Slider.maxValue;
     }
 }

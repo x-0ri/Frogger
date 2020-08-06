@@ -93,7 +93,7 @@ GameObject:
   - component: {fileID: 3517899021455326610}
   m_Layer: 0
   m_Name: Line_Water
-  m_TagString: KillCollider
+  m_TagString: WaterCollider
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
