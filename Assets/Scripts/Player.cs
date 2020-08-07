@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,7 +12,7 @@ public class Player : MonoBehaviour
     public int lives;
     private float velocity = 0.1F;
 
-    bool InFrontOfFence, AtBackOfFence, OnWater, OnWaterObject;
+    bool InFrontOfFence, AtBackOfFence, OnWater, OnWaterObjectLily, OnWaterObjectLog;
 
     private int direction;               // Direction selector  // 0 - none     1 - up      2 - down    3 - left    4 - right
     readonly Vector3[] move = { new Vector3(0, 0, 0),           // 0 - none
@@ -68,13 +69,12 @@ public class Player : MonoBehaviour
 
             if (OnWater)
             {
-                if (OnWaterObject)
+                if (OnWaterObjectLog || OnWaterObjectLily)
                 {
                     GameBoard.Carry_Player_On_Water(player, Script_Water.v_log);
                 }
-
                 else Respawn();
-            }
+            }           
         }
         else         
         {
@@ -116,29 +116,40 @@ public class Player : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)      // function for handling trigger entering (staying on something goes here)
     {
-        if (collision.CompareTag("FenceFront"))
+        if (direction == 0)
         {
-            InFrontOfFence = true;
-            Debug.Log("Player is in front of the fence");
-        }
+            if (collision.CompareTag("FenceFront"))
+            {
+                InFrontOfFence = true;
+                Debug.Log("Player is in front of the fence");
+            }
 
-        if (collision.CompareTag("FenceBack"))
-        {
-            AtBackOfFence = true;
-            Debug.Log("Player is at back of the fence");
-        }
+            if (collision.CompareTag("FenceBack"))
+            {
+                AtBackOfFence = true;
+                Debug.Log("Player is at back of the fence");
+            }
 
-        if(collision.CompareTag("WaterCollider"))
-        {
-            OnWater = true;
-            Debug.Log("Player is on water");
-        }
+            if (collision.CompareTag("WaterCollider"))
+            {
+                OnWater = true;
+                Debug.Log("Player is on water");
+            }
 
-        if (collision.CompareTag("FloatingObject"))
-        {
-            OnWaterObject = true;
-            Debug.Log("Player is on floating object");
+            if (collision.CompareTag("FloatingObjectLog"))
+            {
+                OnWaterObjectLog = true;
+                Debug.Log("Player is on log");
+            }
+
+            if (collision.CompareTag("FloatingObjectLily"))
+            {
+                OnWaterObjectLily = true;
+                Debug.Log("Player is on lily");
+            }
+
         }
+        
     }
 
     private void OnTriggerExit2D(Collider2D collision)      // function for handling trigger exiting (extiting something goes here)
@@ -146,13 +157,13 @@ public class Player : MonoBehaviour
         if (collision.CompareTag("FenceFront"))
         {
             InFrontOfFence = false;
-            Debug.Log("Player is not in front of the fence");
+            //Debug.Log("Player is not in front of the fence");
         }
 
         if (collision.CompareTag("FenceBack"))
         {
             AtBackOfFence = false;
-            Debug.Log("Player is not at back of the fence");
+            //Debug.Log("Player is not at back of the fence");
         }
         if (collision.CompareTag("WaterCollider"))
         {
@@ -160,10 +171,16 @@ public class Player : MonoBehaviour
             Debug.Log("Player is not on water");
         }
 
-        if (collision.CompareTag("FloatingObject"))
+        if (collision.CompareTag("FloatingObjectLog"))
         {
-            OnWaterObject = false;
-            Debug.Log("Player is not on floating object");
+            OnWaterObjectLog = false;
+            Debug.Log("Player is not on log");
+        }
+
+        if(collision.CompareTag("FloatingObjectLily"))
+        {
+            OnWaterObjectLily = false;
+            Debug.Log("Player is not on lily");
         }
     }
 
@@ -183,7 +200,7 @@ public class Player : MonoBehaviour
         {
             UI_Lives[lives].SetActive(false);              // uses int variable "lives" to disable life 1 (0 in array)
             player.SetActive(false);
-            StopCoroutine("Timer01s");
+            StopCoroutine(GameBoardScript.Timer01s());
             // Debug.Log("YOU DIED");
         }   
     }
@@ -193,6 +210,7 @@ public class Player : MonoBehaviour
         InFrontOfFence = false;
         AtBackOfFence = false;
         OnWater = false;
-        OnWaterObject = false;
+        OnWaterObjectLily = false;
+        OnWaterObjectLog = false;
     }
 }

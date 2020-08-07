@@ -110,6 +110,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c9a460a2a3d89c459fa9632afceb1c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GameBoardScript: {fileID: 0}
   player: {fileID: 1052051015244714172}
   UI_Lives:
   - {fileID: 0}

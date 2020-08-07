@@ -7,8 +7,9 @@ TagManager:
   - KillCollider
   - FenceFront
   - FenceBack
-  - FloatingObject
   - WaterCollider
+  - FloatingObjectLog
+  - FloatingObjectLily
   layers:
   - Default
   - TransparentFX

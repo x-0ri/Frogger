@@ -23,7 +23,7 @@ public class Script_MidGrass : MonoBehaviour
         InstantiateMidGrass();
         InstantiateFences();
         InstantiateSnake();
-        StartCoroutine("SnakeFlip");        // just for fancy snake anim
+        StartCoroutine(SnakeFlip());        // just for fancy snake anim
     }
 
     void Update()
@@ -76,7 +76,7 @@ public class Script_MidGrass : MonoBehaviour
 
     IEnumerator SnakeFlip()
     {
-        for (; ; )    // endless "for" loop
+        while(true)
         {
             yield return new WaitForSeconds(0.5F);
             snakeflip = !snakeflip;

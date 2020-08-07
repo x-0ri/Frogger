@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class GameBoard : MonoBehaviour
 {
-    Player PlayerScript;
-
     public GameObject Car;
     public Slider UI_Time_Slider;
     static readonly Vector3[] AI_move_vector = { new Vector3(1, 0, 0), new Vector3(-1, 0, 0) };            // AI_Move[0] - to right        AI_Move[1] - to left
@@ -16,9 +14,9 @@ public class GameBoard : MonoBehaviour
     public static float RespawnPoint = 12;
     void Start()
     {
-        GameTime = 4;
+        GameTime = 20;
         ResetTimer();
-        StartCoroutine("Timer01s");
+        StartCoroutine(Timer01s());
     }
     public static void RespawnObject(GameObject arg_obj)
     {
@@ -39,13 +37,13 @@ public class GameBoard : MonoBehaviour
     public static void Carry_Player_On_Water(GameObject arg_Player, float Velocity)         // should be called only for player
     {
         int dir;                                                                        //
-        if (arg_Player.transform.position.y%2 == 0) dir = 1;                                // to determine direction of movement 
-        else dir = 0;                                                                   // int is passed to pick vector from array
+        if (arg_Player.transform.position.y%2 == 0) dir = 0;                                // to determine direction of movement 
+        else dir = 1;                                                                   // int is passed to pick vector from array
 
         arg_Player.transform.position += (GameBoard.AI_move_vector[dir] * Velocity);
         Player.move_to += (GameBoard.AI_move_vector[dir] * Velocity);                   // !!! Player's target position also needs to be modified in same way as current position !!!
     }
-    IEnumerator Timer01s()
+    public IEnumerator Timer01s()
     {
         while (true) 
         {
