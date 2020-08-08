@@ -5,17 +5,12 @@ using UnityEngine;
 public class Script_OtherSide : MonoBehaviour
 {
     // Line 1 ----> -3 y coord
-    public GameObject LineOtherSidePrefab;                                      // these prefabs 
-
+    public GameObject LineOtherSidePrefab;                                      
     void Start()
     {
         InstantiateOtherSide();
     }
 
-    void Update()
-    {
-        
-    }
     void InstantiateOtherSide()
     {
         Vector3 InstantiationLinePos = new Vector3();                                   // initialize temporary Vector

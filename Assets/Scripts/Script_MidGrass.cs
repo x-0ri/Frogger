@@ -76,7 +76,7 @@ public class Script_MidGrass : MonoBehaviour
 
     IEnumerator SnakeFlip()
     {
-        while(true)
+        while (true)
         {
             yield return new WaitForSeconds(0.5F);
             snakeflip = !snakeflip;

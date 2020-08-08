@@ -8,11 +8,11 @@ public class Player : MonoBehaviour
 {
     public GameBoard GameBoardScript;
     public GameObject player;
-    public GameObject[] UI_Lives = new GameObject[3];
     public int lives;
+    public int passes;
     private float velocity = 0.1F;
 
-    bool InFrontOfFence, AtBackOfFence, OnWater, OnWaterObjectLily, OnWaterObjectLog;
+    bool InFrontOfFence, AtBackOfFence, OnWater, OnWaterObjectLily, OnWaterObjectLog, HasPassed;
 
     private int direction;               // Direction selector  // 0 - none     1 - up      2 - down    3 - left    4 - right
     readonly Vector3[] move = { new Vector3(0, 0, 0),           // 0 - none
@@ -24,20 +24,20 @@ public class Player : MonoBehaviour
     
     public static Vector3 move_to;                    // For keeping target position during movement of player    
     Vector3 playerspawn = new Vector3(0, -4, -3);
+    Vector3 playerduringrespawn = new Vector3(-10, -10, -3);
 
     void Start()
     {
-        Reset_Player_State();
+        Reset_Player();
         direction = 0;
         move_to = new Vector3();
         lives = 3;
+        passes = 0;
     }
 
-    // Update is called once per frame
     void Update()
-    {
-        
-        if (direction == 0)        // if player is not moving - read input keys for player
+    {        
+        if (direction == 0)        // if player is not moving
         {
             if (Input.GetKeyDown(KeyCode.UpArrow) && !InFrontOfFence)       // ... && not in front of fence
             {
@@ -67,14 +67,25 @@ public class Player : MonoBehaviour
                 //Debug.Log("Player moving to : (" + move_to.x + "," + move_to.y + ")");                
             }
 
+            if (HasPassed)
+            {
+                StartCoroutine(Event_Passed_To_Other_Side());
+                return;
+            }
+
             if (OnWater)
             {
                 if (OnWaterObjectLog || OnWaterObjectLily)
                 {
                     GameBoard.Carry_Player_On_Water(player, Script_Water.v_log);
                 }
-                else Respawn();
-            }           
+                
+                else
+                {
+                    StartCoroutine(Event_Death());
+                }
+            }
+
         }
         else         
         {
@@ -83,11 +94,8 @@ public class Player : MonoBehaviour
 
         if (GameBoardScript.UI_Time_Slider.value == 0)
         {
-            Respawn();
-            GameBoardScript.ResetTimer();
+            StartCoroutine(Event_Death());
         }
-
-
     }
 
     void DoMovement()
@@ -110,8 +118,9 @@ public class Player : MonoBehaviour
         if (collision.CompareTag("KillCollider"))           // check if player collided with object that has "KillCollider" tag
         {
             Debug.Log("Hit");
-            Respawn();            
-        }
+            StartCoroutine(Event_Death());
+        }   
+
     }
 
     private void OnTriggerStay2D(Collider2D collision)      // function for handling trigger entering (staying on something goes here)
@@ -121,35 +130,40 @@ public class Player : MonoBehaviour
             if (collision.CompareTag("FenceFront"))
             {
                 InFrontOfFence = true;
-                Debug.Log("Player is in front of the fence");
+                //Debug.Log("Player is in front of the fence");
             }
 
             if (collision.CompareTag("FenceBack"))
             {
                 AtBackOfFence = true;
-                Debug.Log("Player is at back of the fence");
+                //Debug.Log("Player is at back of the fence");
             }
 
             if (collision.CompareTag("WaterCollider"))
             {
                 OnWater = true;
-                Debug.Log("Player is on water");
+                //Debug.Log("Player is on water");
             }
 
             if (collision.CompareTag("FloatingObjectLog"))
             {
                 OnWaterObjectLog = true;
-                Debug.Log("Player is on log");
+                //Debug.Log("Player is on log");
             }
 
             if (collision.CompareTag("FloatingObjectLily"))
             {
                 OnWaterObjectLily = true;
-                Debug.Log("Player is on lily");
+                //Debug.Log("Player is on lily");
             }
 
+            if (collision.CompareTag("FinishCollider"))
+            {
+                Debug.Log("Passed");
+                HasPassed = true;
+                StartCoroutine(Event_Passed_To_Other_Side());
+            }
         }
-        
     }
 
     private void OnTriggerExit2D(Collider2D collision)      // function for handling trigger exiting (extiting something goes here)
@@ -168,49 +182,84 @@ public class Player : MonoBehaviour
         if (collision.CompareTag("WaterCollider"))
         {
             OnWater = false;
-            Debug.Log("Player is not on water");
+            //Debug.Log("Player is not on water");
         }
 
         if (collision.CompareTag("FloatingObjectLog"))
         {
             OnWaterObjectLog = false;
-            Debug.Log("Player is not on log");
+            //Debug.Log("Player is not on log");
         }
 
         if(collision.CompareTag("FloatingObjectLily"))
         {
             OnWaterObjectLily = false;
-            Debug.Log("Player is not on lily");
+            //Debug.Log("Player is not on lily");
         }
     }
 
-    public void Respawn()
-    {
-        lives--;
-        Reset_Player_State();   // make sure any existing state bools are not true
-        
-        if (lives > 0)          // if player has lives left
-        {
-            UI_Lives[lives].SetActive(false);              // uses int variable "lives" to disable lives 3 and 2 (2 and 1 in array)
-            direction = 0;
-            player.transform.position = playerspawn;
-            GameBoardScript.ResetTimer();
-        }
-        else 
-        {
-            UI_Lives[lives].SetActive(false);              // uses int variable "lives" to disable life 1 (0 in array)
-            player.SetActive(false);
-            StopCoroutine(GameBoardScript.Timer01s());
-            // Debug.Log("YOU DIED");
-        }   
-    }
-
-    void Reset_Player_State()
+    void Reset_Player()
     {
         InFrontOfFence = false;
         AtBackOfFence = false;
         OnWater = false;
         OnWaterObjectLily = false;
         OnWaterObjectLog = false;
+        HasPassed = false;
+        direction = 0;
+    }
+
+    IEnumerator Event_Death()
+    {
+        // After being hit
+        lives--;
+        Reset_Player();
+        player.transform.position = playerduringrespawn;    // !!! Note : this has to be done by moving player out of gameboard so he cannot move. 
+                                                            // Deactivating player by SetActive(false) causes code to not get back to this coroutine, 
+                                                            // since it deactivates object that started this coroutine (? possible cause)
+        GameBoardScript.ResetTimer();
+        GameBoardScript.TimerIsActive = false;
+
+        if (lives > 0)                                      // if player has lives left
+        {
+            GameBoardScript.UI_Lives[lives].SetActive(false);               // uses int variable "lives" to disable lives 3 and 2 (2 and 1 in array)
+            
+            // Respawn delay
+            yield return new WaitForSeconds(3F);
+
+            // Reset player position and start new timer        
+            player.transform.position = playerspawn;
+            GameBoardScript.TimerIsActive = true;
+            StartCoroutine(GameBoardScript.GameTimer());        // coroutine has to be started over since it exited "while" loop and ended
+        }
+        else
+        {
+            GameBoardScript.UI_Lives[lives].SetActive(false);               // uses int variable "lives" to disable life 1 (0 in array)
+            player.SetActive(false);
+        }        
+    }
+
+    IEnumerator Event_Passed_To_Other_Side()
+    {
+        if (passes < 3)
+        {
+            GameBoardScript.UI_Passes[passes].GetComponent<SpriteRenderer>().color = GameBoardScript.FullColor;
+            passes++;   // increase after UI update so it can pass value to array
+
+            Reset_Player();
+            player.transform.position = playerduringrespawn;    // !!! Note : this has to be done by moving player out of gameboard so he cannot move. 
+                                                                // Deactivating player by SetActive(false) causes code to not get back to this coroutine, 
+                                                                // since it deactivates object that started this coroutine (? possible cause)
+            GameBoardScript.ResetTimer();
+            GameBoardScript.TimerIsActive = false;
+
+            // Respawn delay
+            yield return new WaitForSeconds(3F);
+
+            // Reset player position and start new timer        
+            GameBoardScript.TimerIsActive = true;
+            StartCoroutine(GameBoardScript.GameTimer());        // coroutine has to be started over since it exited "while" loop and ended
+            player.transform.position = playerspawn;
+        } 
     }
 }
