@@ -12,6 +12,7 @@ TagManager:
   - FloatingObjectLily
   - FinishCollider
   - FailFinishCollider
+  - ScoreCollider
   layers:
   - Default
   - TransparentFX

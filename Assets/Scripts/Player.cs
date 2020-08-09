@@ -100,10 +100,10 @@ public class Player : MonoBehaviour
 
     void DoMovement()
     {
-        player.transform.position += (move[direction] * velocity);                      // move player in selected direction
-        if (player.transform.position == move_to)                                       // if player reached position to move to
+        player.transform.position += (move[direction] * velocity);      // move player in selected direction
+        if (player.transform.position == move_to)                       // if player reached position to move to
         {
-            player.transform.position = move_to;        // !!! comparing two Vector3 does have some approximation / rounding and results in leftover values like 0,0001 etc. This line only sets position to whole value.
+            player.transform.position = move_to;                        // !!! comparing two Vector3 does have some approximation / rounding and results in leftover values like 0,0001 etc. This line only sets position to whole value.
             direction = 0;
         }
     }
@@ -119,8 +119,7 @@ public class Player : MonoBehaviour
         {
             Debug.Log("Hit");
             StartCoroutine(Event_Death());
-        }   
-
+        }
     }
 
     private void OnTriggerStay2D(Collider2D collision)      // function for handling trigger entering (staying on something goes here)
@@ -162,6 +161,16 @@ public class Player : MonoBehaviour
                 Debug.Log("Passed");
                 HasPassed = true;
                 StartCoroutine(Event_Passed_To_Other_Side());
+            }
+
+            if (collision.CompareTag("ScoreCollider"))
+            {
+                Vector3 movescorecollider = GameBoardScript.ScoreCollider.transform.position;
+                movescorecollider.y++;
+                GameBoardScript.ScoreCollider.transform.position = movescorecollider;
+
+                Debug.Log("Score + 5");
+                GameBoardScript.AddScore(false);                // false - add score normally
             }
         }
     }
@@ -207,6 +216,7 @@ public class Player : MonoBehaviour
         OnWaterObjectLog = false;
         HasPassed = false;
         direction = 0;
+        GameBoardScript.ResetScoreColliderPosition();
     }
 
     IEnumerator Event_Death()
@@ -244,15 +254,17 @@ public class Player : MonoBehaviour
         if (passes < 3)
         {
             GameBoardScript.UI_Passes[passes].GetComponent<SpriteRenderer>().color = GameBoardScript.FullColor;
-            passes++;   // increase after UI update so it can pass value to array
+            passes++;   // increase after UI update so it can pass value to array ( 2 - 0 )
 
             Reset_Player();
             player.transform.position = playerduringrespawn;    // !!! Note : this has to be done by moving player out of gameboard so he cannot move. 
                                                                 // Deactivating player by SetActive(false) causes code to not get back to this coroutine, 
                                                                 // since it deactivates object that started this coroutine (? possible cause)
+
+            GameBoardScript.AddScore(true);                     // true - add score for finishing  
             GameBoardScript.ResetTimer();
             GameBoardScript.TimerIsActive = false;
-
+            
             // Respawn delay
             yield return new WaitForSeconds(3F);
 
