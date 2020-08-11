@@ -62,7 +62,7 @@ public class Script_Water : MonoBehaviour
         Vector3 InstantiationLinePos = new Vector3();                                   // initialize temporary Vector
         for (int i = 0; i < WaterLanes; i++)
         {    
-            InstantiationLinePos.Set(0, Script_Road.RoadLanes + Script_MidGrass.GrassLanes + i - 3, -1);     // Start counting from amount of Road Lines + Grass.
+            InstantiationLinePos.Set(0, Script_Road.RoadLanes + Script_MidGrass.GrassLanes + i - 3, 0);     // Start counting from amount of Road Lines + Grass.
             LinesWater[i] = Instantiate(LineWaterPrefab);                               // instantiate prefabs to GameObject array
             LinesWater[i].transform.position = InstantiationLinePos;                    // pass into newly created object 
         }

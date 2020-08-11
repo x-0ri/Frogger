@@ -8,11 +8,14 @@ public class Player : MonoBehaviour
 {
     public GameBoard GameBoardScript;
     public GameObject player;
+    public Script_PopUp PopUpScript;
+
     public int lives;
     public int passes;
     private float velocity = 0.1F;
 
     bool InFrontOfFence, AtBackOfFence, OnWater, OnWaterObjectLily, OnWaterObjectLog, HasPassed;
+    public bool Winner;
 
     private int direction;               // Direction selector  // 0 - none     1 - up      2 - down    3 - left    4 - right
     readonly Vector3[] move = { new Vector3(0, 0, 0),           // 0 - none
@@ -22,7 +25,7 @@ public class Player : MonoBehaviour
                                 new Vector3(1, 0, 0)};          // 4 - right
 
     
-    public static Vector3 move_to;                    // For keeping target position during movement of player    
+    public static Vector3 move_to;                              // For keeping target position during movement of player    
     Vector3 playerspawn = new Vector3(0, -4, -3);
     Vector3 playerduringrespawn = new Vector3(-10, -10, -3);
 
@@ -98,6 +101,7 @@ public class Player : MonoBehaviour
         }
     }
 
+    #region MovementFunctions
     void DoMovement()
     {
         player.transform.position += (move[direction] * velocity);      // move player in selected direction
@@ -112,6 +116,9 @@ public class Player : MonoBehaviour
     {
         move_to = player.transform.position + move[direction];        
     }
+    #endregion
+
+    #region ColliderFunctions
 
     private void OnTriggerEnter2D(Collider2D collision)     // function for handling trigger entering (getting hit goes here)
     {
@@ -160,6 +167,7 @@ public class Player : MonoBehaviour
             {
                 Debug.Log("Passed");
                 HasPassed = true;
+                Settings.ScoreCount += 150 * (Settings.Difficulty - 1);
                 StartCoroutine(Event_Passed_To_Other_Side());
             }
 
@@ -207,6 +215,8 @@ public class Player : MonoBehaviour
         }
     }
 
+    #endregion
+
     void Reset_Player()
     {
         InFrontOfFence = false;
@@ -239,39 +249,50 @@ public class Player : MonoBehaviour
 
             // Reset player position and start new timer        
             player.transform.position = playerspawn;
-            GameBoardScript.TimerIsActive = true;
+            GameBoardScript.TimerIsActive = true;           
             StartCoroutine(GameBoardScript.GameTimer());        // coroutine has to be started over since it exited "while" loop and ended
         }
         else
         {
+            StartCoroutine(PopUpScript.Event_ShowPopUp(false));
             GameBoardScript.UI_Lives[lives].SetActive(false);               // uses int variable "lives" to disable life 1 (0 in array)
-            player.SetActive(false);
-        }        
+            player.transform.position = playerduringrespawn;
+            Winner = false;
+        }
     }
 
     IEnumerator Event_Passed_To_Other_Side()
     {
+        Reset_Player();
+        player.transform.position = playerduringrespawn;    // !!! Note : this has to be done by moving player out of gameboard so he cannot move. 
+                                                            // Deactivating player by SetActive(false) causes code to not get back to this coroutine, 
+                                                            // since it deactivates object that started this coroutine (? possible cause)
+
+        GameBoardScript.UI_Passes[passes].GetComponent<SpriteRenderer>().color = GameBoardScript.FullColor;     // -1 because "passes counts from 1"
+        passes++;
+
         if (passes < 3)
-        {
-            GameBoardScript.UI_Passes[passes].GetComponent<SpriteRenderer>().color = GameBoardScript.FullColor;
-            passes++;   // increase after UI update so it can pass value to array ( 2 - 0 )
-
-            Reset_Player();
-            player.transform.position = playerduringrespawn;    // !!! Note : this has to be done by moving player out of gameboard so he cannot move. 
-                                                                // Deactivating player by SetActive(false) causes code to not get back to this coroutine, 
-                                                                // since it deactivates object that started this coroutine (? possible cause)
-
+        {            
             GameBoardScript.AddScore(true);                     // true - add score for finishing  
             GameBoardScript.ResetTimer();
             GameBoardScript.TimerIsActive = false;
-            
+
             // Respawn delay
-            yield return new WaitForSeconds(3F);
+            yield return new WaitForSeconds(2F);
 
             // Reset player position and start new timer        
             GameBoardScript.TimerIsActive = true;
             StartCoroutine(GameBoardScript.GameTimer());        // coroutine has to be started over since it exited "while" loop and ended
             player.transform.position = playerspawn;
-        } 
+        }
+        else if(passes >= 3)
+        {         
+            GameBoardScript.AddScore(true);                     // true - add score for finishing  
+            GameBoardScript.ResetTimer();
+            GameBoardScript.TimerIsActive = false;
+
+            StartCoroutine(PopUpScript.Event_ShowPopUp(true));
+            Winner = true;
+        }
     }
 }

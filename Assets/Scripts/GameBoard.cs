@@ -8,23 +8,26 @@ public class GameBoard : MonoBehaviour
 {
     public GameObject Car;
     public GameObject ScoreCollider;
-    public Slider UI_Time_Slider;
-    public TextMeshProUGUI UI_Text_ScoreCount;
+
     public GameObject[] UI_Lives = new GameObject[3];
     public GameObject[] UI_Passes = new GameObject[3];
+
+    public Slider UI_Time_Slider;
+    public TextMeshProUGUI UI_Text_ScoreCount;
+    public Color FullColor = new Color(1, 1, 1, 1);
+
     static readonly Vector3[] AI_move_vector = { new Vector3(1, 0, 0), new Vector3(-1, 0, 0) };            // AI_Move[0] - to right        AI_Move[1] - to left
     public bool TimerIsActive;
     float GameTime;
     public static float RespawnPoint = 12;
-    public Color FullColor = new Color(1, 1, 1, 1);
-    public int ScoreCount;
+
     void Start()
     {
-        GameTime = 20;
+        GameTime = 20 - (Settings.Difficulty - 1); // -1 second for each difficulty level
         TimerIsActive = true;
         ResetTimer();
+        UI_Text_ScoreCount.text = Settings.ScoreCount.ToString();
         StartCoroutine(GameTimer());
-        ScoreCount = 0;
     }
     public static void RespawnObject(GameObject arg_obj)
     {
@@ -81,13 +84,13 @@ public class GameBoard : MonoBehaviour
     {
         if (PlayerHasPassed) 
         { 
-            ScoreCount += 100 + (Mathf.CeilToInt(UI_Time_Slider.value) * 10);
-            UI_Text_ScoreCount.text = ScoreCount.ToString(); 
+            Settings.ScoreCount += 100 + (Mathf.CeilToInt(UI_Time_Slider.value) * 10);
+            UI_Text_ScoreCount.text = Settings.ScoreCount.ToString(); 
         }
         else
         {
-            ScoreCount += 5;
-            UI_Text_ScoreCount.text = ScoreCount.ToString();
+            Settings.ScoreCount += 5;
+            UI_Text_ScoreCount.text = Settings.ScoreCount.ToString();
         }
     }
 
