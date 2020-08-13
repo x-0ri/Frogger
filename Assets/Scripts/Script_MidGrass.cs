@@ -25,7 +25,7 @@ public class Script_MidGrass : MonoBehaviour
     void Start()
     {
         v_snake = 0.005F * (1 + (Settings.Difficulty / 10) * 0.5F);             // difficulty scaling - +50% speed per difficulty (diminishing returns)
-        FenceAmountPerLane = Mathf.Min(8 + (Settings.Difficulty) * 2, 16);      // difficulty scaling - rising with difficulty
+        FenceAmountPerLane = Mathf.Min(6 + (Settings.Difficulty) * 2, 16);      // difficulty scaling - rising with difficulty
         SetFenceGridState();
 
         InstantiateMidGrass();

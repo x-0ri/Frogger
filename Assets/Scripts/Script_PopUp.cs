@@ -48,14 +48,23 @@ public class Script_PopUp : MonoBehaviour
         }
 
         yield return new WaitForSeconds(1F);
-
-        while (countscore < Settings.ScoreCount)
+        if (Settings.ScoreCount > countscore)               // in rare cases where player did not score any points in level, 
+                                                            // PopUp would not display score at all. This if statement prevents this situation
         {
-            countscore +=5;                             // score is always dividable by 5, this speeds up scorecount
+            while (countscore < Settings.ScoreCount)
+            {
+                countscore += 5;                             // score is always dividable by 5, this speeds up scorecount
+                ScoreAmount.text = countscore.ToString();
+                yield return null;
+            }
+        }
+        else // only case when Settings.ScoreCount == countscore is not gaining points at all on level
+        {
             ScoreAmount.text = countscore.ToString();
             yield return null;
-        }
-        if (Settings.Difficulty > 1)
+        }     
+
+        if (Settings.Difficulty > 1)    // display this effect only if player had completed at least one level
         {
             yield return new WaitForSeconds(0.5F);
             ScoreAmount.text += " (+" + (countscore - StartingScore) + ")";
@@ -67,6 +76,7 @@ public class Script_PopUp : MonoBehaviour
     {
         PopUp.transform.position = VisiblePos;
     }
+
     void SetPopUpInvisible()    // This is used instead setting PopUp to active / inactive since it messes with calling functions and coroutines
     {
         PopUp.transform.position = InvisiblePos;

@@ -17,6 +17,7 @@ public class GameBoardButtonHandler : MonoBehaviour
 
         else
         {
+            LeaderBoard.AddToLeaderBoard(Settings.ScoreCount);  // Saving is included in this function
             Settings.Difficulty = 1;            // reset difficulty level
             Settings.ScoreCount = 0;
             SceneManager.LoadScene("MainMenu"); // back to menu           

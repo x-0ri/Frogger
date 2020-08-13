@@ -39,7 +39,7 @@ public class Player : MonoBehaviour
     }
 
     void Update()
-    {        
+    {
         if (direction == 0)        // if player is not moving
         {
             if (Input.GetKeyDown(KeyCode.UpArrow) && !InFrontOfFence)       // ... && not in front of fence
@@ -78,11 +78,16 @@ public class Player : MonoBehaviour
 
             if (OnWater)
             {
-                if (OnWaterObjectLog || OnWaterObjectLily)
+                if (OnWaterObjectLog)
                 {
                     GameBoard.Carry_Player_On_Water(player, Script_Water.v_log);
                 }
-                
+
+                else if (OnWaterObjectLily)
+                {
+                    GameBoard.Carry_Player_On_Water(player, Script_Water.v_lily);
+                }
+
                 else
                 {
                     StartCoroutine(Event_Death());
@@ -177,7 +182,7 @@ public class Player : MonoBehaviour
                 movescorecollider.y++;
                 GameBoardScript.ScoreCollider.transform.position = movescorecollider;
 
-                Debug.Log("Score + 5");
+                //Debug.Log("Score + 5");
                 GameBoardScript.AddScore(false);                // false - add score normally
             }
         }

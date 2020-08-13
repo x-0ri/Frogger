@@ -9,19 +9,22 @@ public class MainMenu : MonoBehaviour
 {
     public GameObject Mainmenu;
     public GameObject Settingsmenu;
+    public GameObject Leaderboardmenu;
 
     public Slider EffectsVolumeSlider;
     public Slider MusicVolumeSlider;
 
     public TextMeshProUGUI EffectsVolumeText;
     public TextMeshProUGUI MusicVolumeText;
-
+    public TextMeshProUGUI[] LeaderboardText = new TextMeshProUGUI[LeaderBoard.leaderboardsize];
     void Start()
     {
         EffectsVolumeSlider.value = PlayerPrefs.GetFloat("EffectsVolume");
         MusicVolumeSlider.value = PlayerPrefs.GetFloat("MusicVolume");
-
+        
         Settingsmenu.SetActive(false);
+
+        LeaderBoard.Load();
     }
 
     private void Update()
@@ -45,6 +48,21 @@ public class MainMenu : MonoBehaviour
 
         PlayerPrefs.SetFloat("EffectsVolume", EffectsVolumeSlider.value);
         PlayerPrefs.SetFloat("MusicVolume", MusicVolumeSlider.value);
+    }
+    public void ShowLeaderboard()
+    {
+        for (int i = 0; i < LeaderBoard.leaderboardsize; i++)
+        {
+            LeaderboardText[i].text = LeaderBoard.leaderboard[i].ToString();
+        }
+        Leaderboardmenu.SetActive(true);
+        Mainmenu.SetActive(false);
+    }
+
+    public void HideLeaderboard()
+    {
+        Leaderboardmenu.SetActive(false);
+        Mainmenu.SetActive(true);
     }
 
     public void ExitGame()

@@ -9,10 +9,10 @@ public class Script_Water : MonoBehaviour
     int LogAmountPerLane = 3;
     int LilyAmountPerLane = 7;
 
-    public static float v_log = 0.01F;        // velocity of Log
-    public static float v_lily = 0.01F;       // velocity of Lily
+    public static float v_log;      // velocity of Log
+    public static float v_lily;     // velocity of Lily
 
-    public GameObject LineWaterPrefab;                                      // these prefabs 
+    public GameObject LineWaterPrefab;                      
     public GameObject LogPrefab;
     public GameObject LilyPrefab;
 
@@ -21,7 +21,7 @@ public class Script_Water : MonoBehaviour
     List<GameObject> Lilys = new List<GameObject>();
 
     int AmountOfSinkingElements;
-    int MaxAmountOfSinkingElements = 1;
+    int MaxAmountOfSinkingElements;
 
     void Start()
     {
@@ -29,7 +29,11 @@ public class Script_Water : MonoBehaviour
         InstantiateLogs();
         InstatiateLilys();
 
+        v_log = 0.015F * (1 + (Settings.Difficulty / 5));    // 20% faster per lvl       
+        v_lily = 0.01F / (1 + (Settings.Difficulty / 5));   // 20% slower per lvl
+
         AmountOfSinkingElements = 0; // starting with zero
+        MaxAmountOfSinkingElements = 1 + (Settings.Difficulty / 2);
     }
 
     void Update()
