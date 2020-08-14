@@ -47,7 +47,7 @@ public class Script_PopUp : MonoBehaviour
             PopUp.transform.localScale += ScaleXIncrement;
         }
 
-        yield return new WaitForSeconds(1F);
+        yield return new WaitForSeconds(1F);        
         if (Settings.ScoreCount > countscore)               // in rare cases where player did not score any points in level, 
                                                             // PopUp would not display score at all. This if statement prevents this situation
         {

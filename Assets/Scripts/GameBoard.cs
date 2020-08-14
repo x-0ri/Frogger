@@ -8,6 +8,7 @@ public class GameBoard : MonoBehaviour
 {
     public GameObject Car;
     public GameObject ScoreCollider;
+    public SoundHandlerGame SoundHandler;
 
     public GameObject[] UI_Lives = new GameObject[3];
     public GameObject[] UI_Passes = new GameObject[3];
@@ -28,6 +29,7 @@ public class GameBoard : MonoBehaviour
         ResetTimer();
         UI_Text_ScoreCount.text = Settings.ScoreCount.ToString();
         StartCoroutine(GameTimer());
+        SoundHandler.PlayMusic();
     }
     public static void RespawnObject(GameObject arg_obj)
     {

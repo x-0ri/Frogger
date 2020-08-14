@@ -14,7 +14,6 @@ public static class LeaderBoard
 
     [SerializeField] public static int[] leaderboard = new int[leaderboardsize];             // 0 - highest score
     [SerializeField] private static string filename = "ldb.sav";
-    [SerializeField] private static string filename2 = "ldb2.sav";
 
     private static BinaryFormatter Binary_Formatter = new BinaryFormatter();
 

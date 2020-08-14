@@ -46,6 +46,7 @@ public class Player : MonoBehaviour
             {
                 direction = 1;
                 Set_Move_To();
+                GameBoardScript.SoundHandler.PlayJumpSound();
                 //Debug.Log("Player moving to : (" + move_to.x + "," + move_to.y + ")");
             }
 
@@ -53,6 +54,7 @@ public class Player : MonoBehaviour
             {
                 direction = 2;
                 Set_Move_To();
+                GameBoardScript.SoundHandler.PlayJumpSound();
                 //Debug.Log("Player moving to : (" + move_to.x + "," + move_to.y + ")");
             }
 
@@ -60,6 +62,7 @@ public class Player : MonoBehaviour
             {
                 direction = 3;
                 Set_Move_To();
+                GameBoardScript.SoundHandler.PlayJumpSound();
                 //Debug.Log("Player moving to : (" + move_to.x + "," + move_to.y + ")");                
             }
 
@@ -67,6 +70,7 @@ public class Player : MonoBehaviour
             {
                 direction = 4;
                 Set_Move_To();
+                GameBoardScript.SoundHandler.PlayJumpSound();
                 //Debug.Log("Player moving to : (" + move_to.x + "," + move_to.y + ")");                
             }
 
@@ -91,6 +95,7 @@ public class Player : MonoBehaviour
                 else
                 {
                     StartCoroutine(Event_Death());
+                    GameBoardScript.SoundHandler.PlayDeathWaterSound();
                 }
             }
 
@@ -131,6 +136,7 @@ public class Player : MonoBehaviour
         {
             Debug.Log("Hit");
             StartCoroutine(Event_Death());
+            GameBoardScript.SoundHandler.PlayDeathCarSound();
         }
     }
 
@@ -250,15 +256,20 @@ public class Player : MonoBehaviour
             GameBoardScript.UI_Lives[lives].SetActive(false);               // uses int variable "lives" to disable lives 3 and 2 (2 and 1 in array)
             
             // Respawn delay
-            yield return new WaitForSeconds(3F);
+            yield return new WaitForSeconds(2F);
 
             // Reset player position and start new timer        
-            player.transform.position = playerspawn;
             GameBoardScript.TimerIsActive = true;           
             StartCoroutine(GameBoardScript.GameTimer());        // coroutine has to be started over since it exited "while" loop and ended
+            GameBoardScript.SoundHandler.PlayMusic();
+            player.transform.position = playerspawn;
         }
         else
         {
+            //yield return new WaitForSeconds(2F);
+
+            GameBoardScript.SoundHandler.StopMusic();
+            GameBoardScript.SoundHandler.PlayGameOverSound();
             StartCoroutine(PopUpScript.Event_ShowPopUp(false));
             GameBoardScript.UI_Lives[lives].SetActive(false);               // uses int variable "lives" to disable life 1 (0 in array)
             player.transform.position = playerduringrespawn;
@@ -296,6 +307,8 @@ public class Player : MonoBehaviour
             GameBoardScript.ResetTimer();
             GameBoardScript.TimerIsActive = false;
 
+            GameBoardScript.SoundHandler.StopMusic();
+            GameBoardScript.SoundHandler.PlayWinSound();
             StartCoroutine(PopUpScript.Event_ShowPopUp(true));
             Winner = true;
         }

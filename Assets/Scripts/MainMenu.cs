@@ -20,8 +20,11 @@ public class MainMenu : MonoBehaviour
     void Start()
     {
         EffectsVolumeSlider.value = PlayerPrefs.GetFloat("EffectsVolume");
+        Settings.EffectsVolume = PlayerPrefs.GetFloat("EffectsVolume");
+
         MusicVolumeSlider.value = PlayerPrefs.GetFloat("MusicVolume");
-        
+        Settings.MusicVolume = PlayerPrefs.GetFloat("MusicVolume");
+
         Settingsmenu.SetActive(false);
 
         LeaderBoard.Load();
@@ -40,14 +43,14 @@ public class MainMenu : MonoBehaviour
 
     public void HideSettings()
     {
-        Settingsmenu.SetActive(false);
-        Mainmenu.SetActive(true);
-
-        Settings.EffectsVolume = Mathf.RoundToInt(EffectsVolumeSlider.value); // Despite slider having "Whole Value" setting on is still float type
-        Settings.MusicVolume = Mathf.RoundToInt(MusicVolumeSlider.value);
+        Settings.EffectsVolume = EffectsVolumeSlider.value; // Despite slider having "Whole Value" setting on it's still float type
+        Settings.MusicVolume = MusicVolumeSlider.value;
 
         PlayerPrefs.SetFloat("EffectsVolume", EffectsVolumeSlider.value);
         PlayerPrefs.SetFloat("MusicVolume", MusicVolumeSlider.value);
+
+        Settingsmenu.SetActive(false);
+        Mainmenu.SetActive(true);
     }
     public void ShowLeaderboard()
     {
