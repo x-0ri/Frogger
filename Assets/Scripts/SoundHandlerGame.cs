@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class SoundHandlerGame : MonoBehaviour
 {
@@ -12,6 +9,7 @@ public class SoundHandlerGame : MonoBehaviour
     public AudioSource DeathWater;
     public AudioSource Win;
     public AudioSource GameOver;
+    public AudioSource Pass;
 
     public void PlayMusic()
     {
@@ -25,7 +23,7 @@ public class SoundHandlerGame : MonoBehaviour
 
     public void PlayJumpSound()
     {
-        Jump.PlayOneShot(Jump.clip, Settings.EffectsVolume / 100);
+        Jump.PlayOneShot(Jump.clip, (Settings.EffectsVolume / 100) * 0.6F);
     }
 
     public void PlayDeathCarSound()
@@ -46,11 +44,16 @@ public class SoundHandlerGame : MonoBehaviour
 
     public void PlayWinSound()
     {
-        ButtonClick.PlayOneShot(Win.clip, Settings.EffectsVolume / 100);
+        ButtonClick.PlayOneShot(Win.clip, (Settings.EffectsVolume / 100) * 1.3F);
     }
 
     public void PlayGameOverSound()
     {
-        ButtonClick.PlayOneShot(GameOver.clip, Settings.EffectsVolume / 100);
+        ButtonClick.PlayOneShot(GameOver.clip, (Settings.EffectsVolume / 100) * 1.3F);
+    }
+
+    public void PlayPassGameSound()
+    {
+        Pass.PlayOneShot(Pass.clip, (Settings.EffectsVolume / 100) * 1.3F);
     }
 }

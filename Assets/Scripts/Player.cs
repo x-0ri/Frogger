@@ -1,8 +1,5 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEditorInternal;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -14,7 +11,7 @@ public class Player : MonoBehaviour
     public int passes;
     private float velocity = 0.1F;
 
-    bool InFrontOfFence, AtBackOfFence, OnWater, OnWaterObjectLily, OnWaterObjectLog, HasPassed;
+    bool InFrontOfFence, AtBackOfFence, OnWater, OnWaterObjectLily, OnWaterObjectLog, HasPassed, Alive;
     public bool Winner;
 
     private int direction;               // Direction selector  // 0 - none     1 - up      2 - down    3 - left    4 - right
@@ -36,18 +33,18 @@ public class Player : MonoBehaviour
         move_to = new Vector3();
         lives = 3;
         passes = 0;
+        Alive = true;           // prevents glitchy respawn if player was trying to move player during respawn period
     }
 
     void Update()
     {
-        if (direction == 0)        // if player is not moving
+        if (Alive && direction == 0)        // if player is not moving
         {
             if (Input.GetKeyDown(KeyCode.UpArrow) && !InFrontOfFence)       // ... && not in front of fence
             {
                 direction = 1;
                 Set_Move_To();
                 GameBoardScript.SoundHandler.PlayJumpSound();
-                //Debug.Log("Player moving to : (" + move_to.x + "," + move_to.y + ")");
             }
 
             if (Input.GetKeyDown(KeyCode.DownArrow) && !AtBackOfFence && player.transform.position.y > -4 )  // ... && not at back of fence
@@ -55,7 +52,6 @@ public class Player : MonoBehaviour
                 direction = 2;
                 Set_Move_To();
                 GameBoardScript.SoundHandler.PlayJumpSound();
-                //Debug.Log("Player moving to : (" + move_to.x + "," + move_to.y + ")");
             }
 
             if (Input.GetKeyDown(KeyCode.LeftArrow) && player.transform.position.x > -9)
@@ -63,7 +59,6 @@ public class Player : MonoBehaviour
                 direction = 3;
                 Set_Move_To();
                 GameBoardScript.SoundHandler.PlayJumpSound();
-                //Debug.Log("Player moving to : (" + move_to.x + "," + move_to.y + ")");                
             }
 
             if (Input.GetKeyDown(KeyCode.RightArrow) && player.transform.position.x < 9)
@@ -71,7 +66,6 @@ public class Player : MonoBehaviour
                 direction = 4;
                 Set_Move_To();
                 GameBoardScript.SoundHandler.PlayJumpSound();
-                //Debug.Log("Player moving to : (" + move_to.x + "," + move_to.y + ")");                
             }
 
             if (HasPassed)
@@ -121,10 +115,9 @@ public class Player : MonoBehaviour
             direction = 0;
         }
     }
-
     void Set_Move_To()
     {
-        move_to = player.transform.position + move[direction];        
+        move_to = player.transform.position + move[direction];
     }
     #endregion
 
@@ -137,6 +130,12 @@ public class Player : MonoBehaviour
             Debug.Log("Hit");
             StartCoroutine(Event_Death());
             GameBoardScript.SoundHandler.PlayDeathCarSound();
+        }
+
+        if (collision.CompareTag("OilCollider"))
+        {
+            Debug.Log("Entered Oil Puddle");
+            velocity = 0.02F;
         }
     }
 
@@ -224,6 +223,12 @@ public class Player : MonoBehaviour
             OnWaterObjectLily = false;
             //Debug.Log("Player is not on lily");
         }
+
+        if (collision.CompareTag("OilCollider"))
+        {
+            Debug.Log("Exited Oil Puddle");
+            velocity = 0.1F;
+        }
     }
 
     #endregion
@@ -243,8 +248,9 @@ public class Player : MonoBehaviour
     IEnumerator Event_Death()
     {
         // After being hit
-        lives--;
+        Alive = false;
         Reset_Player();
+        lives--;
         player.transform.position = playerduringrespawn;    // !!! Note : this has to be done by moving player out of gameboard so he cannot move. 
                                                             // Deactivating player by SetActive(false) causes code to not get back to this coroutine, 
                                                             // since it deactivates object that started this coroutine (? possible cause)
@@ -263,6 +269,7 @@ public class Player : MonoBehaviour
             StartCoroutine(GameBoardScript.GameTimer());        // coroutine has to be started over since it exited "while" loop and ended
             GameBoardScript.SoundHandler.PlayMusic();
             player.transform.position = playerspawn;
+            Alive = true;
         }
         else
         {
@@ -279,12 +286,14 @@ public class Player : MonoBehaviour
 
     IEnumerator Event_Passed_To_Other_Side()
     {
+        GameBoardScript.SoundHandler.PlayPassGameSound();
+        Alive = false;
         Reset_Player();
         player.transform.position = playerduringrespawn;    // !!! Note : this has to be done by moving player out of gameboard so he cannot move. 
                                                             // Deactivating player by SetActive(false) causes code to not get back to this coroutine, 
                                                             // since it deactivates object that started this coroutine (? possible cause)
 
-        GameBoardScript.UI_Passes[passes].GetComponent<SpriteRenderer>().color = GameBoardScript.FullColor;     // -1 because "passes counts from 1"
+        GameBoardScript.UI_Passes[passes].GetComponent<SpriteRenderer>().color = GameBoardScript.FullColor; 
         passes++;
 
         if (passes < 3)
@@ -300,6 +309,7 @@ public class Player : MonoBehaviour
             GameBoardScript.TimerIsActive = true;
             StartCoroutine(GameBoardScript.GameTimer());        // coroutine has to be started over since it exited "while" loop and ended
             player.transform.position = playerspawn;
+            Alive = true;
         }
         else if(passes >= 3)
         {         

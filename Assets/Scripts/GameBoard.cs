@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -49,7 +48,7 @@ public class GameBoard : MonoBehaviour
 
     public static void Carry_Player_On_Water(GameObject arg_Player, float Velocity)         // should be called only for player
     {
-        if (arg_Player.transform.position.x <= 9 && arg_Player.transform.position.x >= -9)    // to prevent carrying player outside the board
+        if (arg_Player.transform.position.x < 9.5 && arg_Player.transform.position.x > -9.5)    // to prevent carrying player outside the board
         {
             int dir;                                                                        //
             if (arg_Player.transform.position.y % 2 == 0) dir = 0;                          // to determine direction of movement 
@@ -71,7 +70,7 @@ public class GameBoard : MonoBehaviour
 
     public static float RollDeviation()
     {
-        float d = Random.Range(-1.5F, 1.5F);
+        float d = Random.Range(-1F, 1F);
         return d;
     }
 

@@ -29,8 +29,8 @@ public class Script_Water : MonoBehaviour
         InstantiateLogs();
         InstatiateLilys();
 
-        v_log = 0.015F * (1 + (Settings.Difficulty / 5));    // 20% faster per lvl       
-        v_lily = 0.01F / (1 + (Settings.Difficulty / 5));   // 20% slower per lvl
+        v_log = 0.015F * (1 + (Settings.Difficulty / 5F));    // 20% faster per lvl       
+        v_lily = 0.01F / (1 + (Settings.Difficulty / 5F));   // 20% slower per lvl
 
         AmountOfSinkingElements = 0; // starting with zero
         MaxAmountOfSinkingElements = 1 + (Settings.Difficulty / 2);
@@ -82,7 +82,7 @@ public class Script_Water : MonoBehaviour
             {
                 if (i % 2 == 0)                                     // at each second lane log will be facing the other direction
                 {
-                    x_coord = -GameBoard.RespawnPoint + (1 + j) * ((GameBoard.RespawnPoint * 2) / (LogAmountPerLane + 1)) + GameBoard.RollDeviation();                
+                    x_coord = -GameBoard.RespawnPoint + (1 + j) * ((GameBoard.RespawnPoint * 2) / (LogAmountPerLane + 1)) + GameBoard.RollDeviation()*1.5F;                
                     InstantiationLinePos.Set(x_coord, Script_Road.LinesRoad.Length + Script_MidGrass.LinesGrass.Length + i - 3, -1);
                     GameObject NewLog = Instantiate(LogPrefab);
                     NewLog.transform.position = InstantiationLinePos;                

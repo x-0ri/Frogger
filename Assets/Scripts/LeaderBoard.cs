@@ -1,10 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
+﻿using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 
 
@@ -31,14 +26,12 @@ public static class LeaderBoard
         }
         Save();
     }
-    public static void MakePlace(int index) // moves down leaderboard, abandoning lowest score
+
+    public static void MakePlace(int index)
     {
-        bool EncounteredZero = false;               // for breaking loop to not overwrite whole leaderboard
-        for (int i = index; i < leaderboardsize - 1; i++)
+        for (int i = leaderboardsize - 2; i >= index; i--)
         {
-            if (leaderboard[i + 1] == 0) EncounteredZero = true;    // if lower score is zero, break loop after rewriting score lower
             leaderboard[i + 1] = leaderboard[i];
-            if (EncounteredZero) break;
         }
     }
 

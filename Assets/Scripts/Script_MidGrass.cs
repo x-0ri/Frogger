@@ -7,7 +7,7 @@ public class Script_MidGrass : MonoBehaviour
     // Line 1 ----> -3 y coord
     public static int GrassLanes = 1;
     int FenceAmountPerLane;
-    
+    static int MaxFenceAmountPerLane = 19;
     public GameObject LineGrassPrefab;                                          // prefab to clone from
     public GameObject SnakePrefab;
     public GameObject FencePrefab;
@@ -17,14 +17,15 @@ public class Script_MidGrass : MonoBehaviour
 
     public static GameObject[] LinesGrass = new GameObject[GrassLanes];         // to store lines in array
 
-    bool[] FenceGrid = new bool[19];                    // to prevent fence overlapping with usage of while loop
+    bool[,] FenceGrid = new bool[GrassLanes, MaxFenceAmountPerLane];                    // to prevent fence overlapping with usage of while loop
 
     private float v_snake;
+    private float FenceYPositionOffset = 0.15F;
     private bool snakeflip = false;
 
     void Start()
     {
-        v_snake = 0.005F * (1 + (Settings.Difficulty / 10) * 0.5F);             // difficulty scaling - +50% speed per difficulty (diminishing returns)
+        v_snake = 0.005F * (1 + (Settings.Difficulty / 2F));             // difficulty scaling - +50% speed per difficulty (diminishing returns)
         FenceAmountPerLane = Mathf.Min(6 + (Settings.Difficulty) * 2, 16);      // difficulty scaling - rising with difficulty
         SetFenceGridState();
 
@@ -49,9 +50,12 @@ public class Script_MidGrass : MonoBehaviour
     }
     void SetFenceGridState() 
     {
-        for (int i = 0; i < 19; i++)
+        for (int i = 0; i < GrassLanes; i++)
         {
-            FenceGrid[i] = false;
+            for (int j = 0; j < MaxFenceAmountPerLane; j++)
+            {
+                FenceGrid[i,j] = false;
+            }
         }
     }
 
@@ -79,29 +83,27 @@ public class Script_MidGrass : MonoBehaviour
     {
         for (int i = 0; i < GrassLanes; i++)
         {
-            Vector3 InstantiationPos;                                           // no need for "new Vector3()" keyword because Vector3.Set is not used
+            Vector3 InstantiationPos = new Vector3();                                          
             int RolledPosition;
 
             for (int j = 0; j < FenceAmountPerLane; j++)
             {
-                RolledPosition = Mathf.CeilToInt(Random.Range(0, 18));
-                while (FenceGrid[RolledPosition] == true)
+                RolledPosition = Mathf.CeilToInt(Random.Range(0, MaxFenceAmountPerLane - 1));
+                while (FenceGrid[i,RolledPosition] == true)
                 {
-                    RolledPosition = Mathf.CeilToInt(Random.Range(0, 18));
-                    if (FenceGrid[RolledPosition] == false)
+                    RolledPosition = Mathf.CeilToInt(Random.Range(0, MaxFenceAmountPerLane - 1));
+                    if (FenceGrid[i,RolledPosition] == false)
                     {
-                        FenceGrid[RolledPosition] = true;
+                        FenceGrid[i,RolledPosition] = true;
                         break;
                     }
                 }
 
                 GameObject NewFence = Instantiate(FencePrefab);
-                InstantiationPos = NewFence.transform.position;
-                InstantiationPos.x = RolledPosition - 9;                          // -9 is position offset constant 
-
+                InstantiationPos.Set(RolledPosition - 9, Script_Road.RoadLanes + i - 3 - FenceYPositionOffset, -4);
                 NewFence.transform.position = InstantiationPos;
                 Fences.Add(NewFence);
-                FenceGrid[RolledPosition] = true;
+                FenceGrid[i,RolledPosition] = true;
             }
         }
     }
@@ -111,7 +113,7 @@ public class Script_MidGrass : MonoBehaviour
         while (true)
         {            
             snakeflip = !snakeflip;
-            yield return new WaitForSeconds(0.4F / (1 + (Settings.Difficulty / 10) * 0.5F)); // match speed with flip frequency
+            yield return new WaitForSeconds(0.4F / (1 + (Settings.Difficulty / 20F))); // match speed with flip frequency
         }
     }
 }
