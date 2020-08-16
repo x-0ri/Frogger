@@ -5,7 +5,6 @@ using UnityEngine;
 public class Script_Water : MonoBehaviour
 {
     // Line 1 ----> -3 y coord
-    public static int WaterLanes = 3;
     int LogAmountPerLane = 3;
     int LilyAmountPerLane = 7;
 
@@ -16,7 +15,7 @@ public class Script_Water : MonoBehaviour
     public GameObject LogPrefab;
     public GameObject LilyPrefab;
 
-    public static GameObject[] LinesWater = new GameObject[WaterLanes];     // to store lines in array
+    public static GameObject[] LinesWater;     // to store lines in array
     List<GameObject> Logs = new List<GameObject>();
     List<GameObject> Lilys = new List<GameObject>();
 
@@ -25,6 +24,8 @@ public class Script_Water : MonoBehaviour
 
     void Start()
     {
+        LinesWater = new GameObject[Settings.DefaultLanes[2] + Settings.ExtraLanes[2]];
+
         InstantiateWater();
         InstantiateLogs();
         InstatiateLilys();
@@ -64,9 +65,9 @@ public class Script_Water : MonoBehaviour
     void InstantiateWater()
     {
         Vector3 InstantiationLinePos = new Vector3();                                   // initialize temporary Vector
-        for (int i = 0; i < WaterLanes; i++)
+        for (int i = 0; i < Settings.DefaultLanes[2] + Settings.ExtraLanes[2]; i++)
         {    
-            InstantiationLinePos.Set(0, Script_Road.RoadLanes + Script_MidGrass.GrassLanes + i - 3, 0);     // Start counting from amount of Road Lines + Grass.
+            InstantiationLinePos.Set(0, Settings.DefaultLanes[0] + Settings.ExtraLanes[0] + Settings.DefaultLanes[1] + Settings.ExtraLanes[1] + i - 3, 0);     // Start counting from amount of Road Lines + Grass.
             LinesWater[i] = Instantiate(LineWaterPrefab);                               // instantiate prefabs to GameObject array
             LinesWater[i].transform.position = InstantiationLinePos;                    // pass into newly created object 
         }
@@ -75,7 +76,7 @@ public class Script_Water : MonoBehaviour
     void InstantiateLogs()
     {
         Vector3 InstantiationLinePos = new Vector3();
-        for (int i = 0; i < WaterLanes; i++)
+        for (int i = 0; i < Settings.DefaultLanes[2] + Settings.ExtraLanes[2]; i++)
         {
             float x_coord;
             for (int j = 0; j < LogAmountPerLane; j++)
@@ -83,7 +84,7 @@ public class Script_Water : MonoBehaviour
                 if (i % 2 == 0)                                     // at each second lane log will be facing the other direction
                 {
                     x_coord = -GameBoard.RespawnPoint + (1 + j) * ((GameBoard.RespawnPoint * 2) / (LogAmountPerLane + 1)) + GameBoard.RollDeviation()*1.5F;                
-                    InstantiationLinePos.Set(x_coord, Script_Road.LinesRoad.Length + Script_MidGrass.LinesGrass.Length + i - 3, -1);
+                    InstantiationLinePos.Set(x_coord, Settings.DefaultLanes[0] + Settings.ExtraLanes[0] + Settings.DefaultLanes[1] + Settings.ExtraLanes[1] + i - 3, -1);
                     GameObject NewLog = Instantiate(LogPrefab);
                     NewLog.transform.position = InstantiationLinePos;                
                     Logs.Add(NewLog);
@@ -95,7 +96,7 @@ public class Script_Water : MonoBehaviour
     void InstatiateLilys()
     {
         Vector3 InstantiationLinePos = new Vector3();
-        for (int i = 0; i < WaterLanes; i++)
+        for (int i = 0; i < Settings.DefaultLanes[2] + Settings.ExtraLanes[2]; i++)
         {
             float x_coord;
             for (int j = 0; j < LilyAmountPerLane; j++)
@@ -103,7 +104,7 @@ public class Script_Water : MonoBehaviour
                 if(i % 2 != 0)                                     // at each second lane log will be facing the other direction
                 {
                     x_coord = -GameBoard.RespawnPoint + (1 + j) * ((GameBoard.RespawnPoint * 2) / (LilyAmountPerLane + 1)) + GameBoard.RollDeviation();
-                    InstantiationLinePos.Set(x_coord, Script_Road.LinesRoad.Length + Script_MidGrass.LinesGrass.Length + i - 3, -1);
+                    InstantiationLinePos.Set(x_coord, Settings.DefaultLanes[0] + Settings.ExtraLanes[0] + Settings.DefaultLanes[1] + Settings.ExtraLanes[1] + i - 3, -1);
                     GameObject NewLily = Instantiate(LilyPrefab);
                     NewLily.transform.position = InstantiationLinePos;
                     NewLily.GetComponent<SpriteRenderer>().flipX = true;

@@ -6,6 +6,7 @@ public class Player : MonoBehaviour
     public GameBoard GameBoardScript;
     public GameObject player;
     public Script_PopUp PopUpScript;
+    public Script_CameraMovement CameraMovementScript;
 
     public int lives;
     public int passes;
@@ -106,6 +107,7 @@ public class Player : MonoBehaviour
     }
 
     #region MovementFunctions
+
     void DoMovement()
     {
         player.transform.position += (move[direction] * velocity);      // move player in selected direction
@@ -115,10 +117,12 @@ public class Player : MonoBehaviour
             direction = 0;
         }
     }
+
     void Set_Move_To()
     {
         move_to = player.transform.position + move[direction];
     }
+    
     #endregion
 
     #region ColliderFunctions
@@ -136,6 +140,11 @@ public class Player : MonoBehaviour
         {
             Debug.Log("Entered Oil Puddle");
             velocity = 0.02F;
+        }
+
+        if (collision.CompareTag("MainCameraMovementCollider"))
+        {
+            StartCoroutine(CameraMovementScript.Event_CameraMovementUp());
         }
     }
 
@@ -175,7 +184,7 @@ public class Player : MonoBehaviour
 
             if (collision.CompareTag("FinishCollider"))
             {
-                Debug.Log("Passed");
+                //Debug.Log("Passed");
                 HasPassed = true;
                 Settings.ScoreCount += 150 * (Settings.Difficulty - 1);
                 StartCoroutine(Event_Passed_To_Other_Side());
@@ -248,6 +257,8 @@ public class Player : MonoBehaviour
     IEnumerator Event_Death()
     {
         // After being hit
+        StopCoroutine(CameraMovementScript.Event_CameraMovementUp());
+        StartCoroutine(CameraMovementScript.Event_ResetCameraPosition());
         Alive = false;
         Reset_Player();
         lives--;
@@ -273,10 +284,14 @@ public class Player : MonoBehaviour
         }
         else
         {
-            //yield return new WaitForSeconds(2F);
-
             GameBoardScript.SoundHandler.StopMusic();
             GameBoardScript.SoundHandler.PlayGameOverSound();
+
+            while (CameraMovementScript.transform.position.y > 0.1F)    // wait for camera to reset
+            {
+                yield return null;
+            }
+
             StartCoroutine(PopUpScript.Event_ShowPopUp(false));
             GameBoardScript.UI_Lives[lives].SetActive(false);               // uses int variable "lives" to disable life 1 (0 in array)
             player.transform.position = playerduringrespawn;
@@ -287,6 +302,7 @@ public class Player : MonoBehaviour
     IEnumerator Event_Passed_To_Other_Side()
     {
         GameBoardScript.SoundHandler.PlayPassGameSound();
+        StartCoroutine(CameraMovementScript.Event_ResetCameraPosition());
         Alive = false;
         Reset_Player();
         player.transform.position = playerduringrespawn;    // !!! Note : this has to be done by moving player out of gameboard so he cannot move. 
@@ -318,6 +334,12 @@ public class Player : MonoBehaviour
             GameBoardScript.TimerIsActive = false;
 
             GameBoardScript.SoundHandler.StopMusic();
+
+            while (CameraMovementScript.transform.position.y > 0.1F)    // wait for camera to reset
+            {
+                yield return null;
+            }
+
             GameBoardScript.SoundHandler.PlayWinSound();
             StartCoroutine(PopUpScript.Event_ShowPopUp(true));
             Winner = true;

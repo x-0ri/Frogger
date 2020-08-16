@@ -11,8 +11,10 @@ public class GameBoardButtonHandler : MonoBehaviour
     {
         if (PlayerScript.Winner)
         {
-            Settings.Difficulty++;              // increase difficulty level
-            SceneManager.LoadScene("Game");     // reload scene with higher difficulty            
+            Settings.Difficulty++;                            // increase difficulty level
+            Settings.ExtraLanes[Settings.Difficulty%3]++;     // add extra lane on next level load
+            
+            SceneManager.LoadScene("Game");                   // reload scene with higher difficulty            
         }
 
         else
@@ -20,6 +22,11 @@ public class GameBoardButtonHandler : MonoBehaviour
             LeaderBoard.AddToLeaderBoard(Settings.ScoreCount);  // Saving is included in this function
             Settings.Difficulty = 1;            // reset difficulty level
             Settings.ScoreCount = 0;
+
+            for (int i = 0; i < 3; i++)         // reset extra lanes
+            {
+                Settings.ExtraLanes[i] = 0;
+            }
             SceneManager.LoadScene("MainMenu"); // back to menu           
             // some score table here
         }

@@ -71,9 +71,13 @@ public class MainMenu : MonoBehaviour
         Application.Quit();
     }
 
-    public void StartGame()
+    public void StartGame()                 // !!!! important to not start game in editor directly from "Game Scene", this function sets difficulty settings properly !!!!
     {
         SceneManager.LoadScene("Game");
         Settings.Difficulty = 1;
+        for (int i = 0; i < 3; i++)
+        {
+            Settings.ExtraLanes[i] = 0;
+        }
     }
 }

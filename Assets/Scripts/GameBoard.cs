@@ -23,6 +23,7 @@ public class GameBoard : MonoBehaviour
 
     void Start()
     {
+        Debug.Log("Game started : Difficulty = " + Settings.Difficulty);
         GameTime = 20 - (Settings.Difficulty - 1); // -1 second for each difficulty level
         TimerIsActive = true;
         ResetTimer();
@@ -50,9 +51,9 @@ public class GameBoard : MonoBehaviour
     {
         if (arg_Player.transform.position.x < 9.5 && arg_Player.transform.position.x > -9.5)    // to prevent carrying player outside the board
         {
-            int dir;                                                                        //
-            if (arg_Player.transform.position.y % 2 == 0) dir = 0;                          // to determine direction of movement 
-            else dir = 1;                                                                   // int is passed to pick vector from array
+            int dir;                                                                                                //
+            if ((arg_Player.transform.position.y + Settings.DefaultLanes[0] + Settings.ExtraLanes[0] + Settings.DefaultLanes[1] + Settings.ExtraLanes[1] - 1) % 2 == 0) dir = 0;               // to determine direction of movement 
+            else dir = 1;                                                                                           // int is passed to pick vector from array
 
             arg_Player.transform.position += (GameBoard.AI_move_vector[dir] * Velocity);
             Player.move_to += (GameBoard.AI_move_vector[dir] * Velocity);                   // !!! Player's target position also needs to be modified in same way as current position !!!
@@ -76,7 +77,7 @@ public class GameBoard : MonoBehaviour
 
     public void ResetTimer()
     {
-        Debug.Log("Restarting Timer");
+        //Debug.Log("Restarting Timer");
         UI_Time_Slider.maxValue = GameTime;
         UI_Time_Slider.value = UI_Time_Slider.maxValue;
     }

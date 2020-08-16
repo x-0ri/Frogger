@@ -5,14 +5,14 @@ using UnityEngine;
 public class Script_Road : MonoBehaviour
 {
     // Line 1 ----> -3 y coord
-    public static int RoadLanes = 4;
+    
     int CarAmountPerLane;
     static int MaxCarAmountPerLane = 8;
 
     public GameObject LineRoadPrefab;                                   // these prefabs 
     public GameObject CarPrefab;                                        // will be instantiated to arrays / lists
 
-    public static GameObject[] LinesRoad = new GameObject[RoadLanes];   // to store road lines in array
+    public static GameObject[] LinesRoad;   // to store road lines in array
 
     List<GameObject> Cars = new List<GameObject>();                     // to store Cars in list
 
@@ -20,6 +20,7 @@ public class Script_Road : MonoBehaviour
 
     void Start()
     {
+        LinesRoad = new GameObject[(Settings.DefaultLanes[0] + Settings.ExtraLanes[0])];
         CarAmountPerLane = Mathf.Min(2 + Settings.Difficulty, MaxCarAmountPerLane);
 
         v = 0.012F * (1 + (Settings.Difficulty / 5F));           // +20% speed per difficulty (diminishing returns)
@@ -43,7 +44,7 @@ public class Script_Road : MonoBehaviour
     void InstantiateRoads()
     {
         Vector3 InstantiationLinePos = new Vector3();                   // initialize temporary Vector
-        for (int i = 0; i < RoadLanes; i++)
+        for (int i = 0; i < (Settings.DefaultLanes[0] + Settings.ExtraLanes[0]); i++)
         {
             InstantiationLinePos.Set(0, i - 3, 0);
             LinesRoad[i] = Instantiate(LineRoadPrefab);                 // instantiate prefabs to GameObject array
@@ -54,7 +55,7 @@ public class Script_Road : MonoBehaviour
     void InstantiateCars()
     {
         Vector3 InstantiationLinePos = new Vector3();
-        for (int i = 0; i < RoadLanes; i++)
+        for (int i = 0; i < (Settings.DefaultLanes[0] + Settings.ExtraLanes[0]); i++)
         {
             float x_coord;                                          // will be used to roll x position
             for (int j = 0; j < CarAmountPerLane; j++)
